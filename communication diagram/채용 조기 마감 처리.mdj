@@ -46,7 +46,7 @@
 											"font": "Arial;13;0",
 											"left": 24.72998046875,
 											"top": 5,
-											"width": 115.83544921875,
+											"width": 101.79541015625,
 											"height": 13,
 											"text": "채용 조기 마감 처리"
 										},
@@ -117,7 +117,7 @@
 													"top": 167,
 													"width": 127.8544921875,
 													"height": 13,
-													"text": ":recruitmentClosing"
+													"text": ":closeRecruitment"
 												},
 												{
 													"_type": "LabelView",
@@ -217,7 +217,7 @@
 													"top": 167,
 													"width": 143.0126953125,
 													"height": 13,
-													"text": ":ChangeEmploymentUI"
+													"text": ":closeRecruitmentUI"
 												},
 												{
 													"_type": "LabelView",
@@ -771,7 +771,7 @@
 											"height": 13,
 											"alpha": 1.5707963267948966,
 											"distance": 10,
-											"text": "1 : changeEmployment( )"
+											"text": "1 : closeRecruitment( )"
 										},
 										{
 											"_type": "NodeLabelView",
@@ -1090,7 +1090,7 @@
 											"height": 13,
 											"alpha": 1.2679108890250088,
 											"distance": 16.76305461424021,
-											"text": "1.1 : recruitmentClosing( )"
+											"text": "1.1 : closeRecruitment( )"
 										},
 										{
 											"_type": "NodeLabelView",
@@ -1746,7 +1746,7 @@
 											"height": 13,
 											"alpha": -3.926991066987304,
 											"distance": 28.284271247461902,
-											"text": "1.1.1 : recruitmentClosing( )"
+											"text": "1.1.1 : closeRecruitment( )"
 										},
 										{
 											"_type": "NodeLabelView",
@@ -1916,7 +1916,7 @@
 							"_parent": {
 								"$ref": "AAAAAAGAwiw8KFEfGBQ="
 							},
-							"name": "changeEmployment",
+							"name": "closeRecruitment",
 							"source": {
 								"$ref": "AAAAAAGA0tb3dAg731M="
 							},
@@ -1935,7 +1935,7 @@
 							"_parent": {
 								"$ref": "AAAAAAGAwiw8KFEfGBQ="
 							},
-							"name": "recruitmentClosing",
+							"name": "closeRecruitment",
 							"source": {
 								"$ref": "AAAAAAGAwjD6c1KcxHg="
 							},
@@ -1954,7 +1954,7 @@
 							"_parent": {
 								"$ref": "AAAAAAGAwiw8KFEfGBQ="
 							},
-							"name": "recruitmentClosing",
+							"name": "closeRecruitment",
 							"source": {
 								"$ref": "AAAAAAGAwjCVblJ9BW0="
 							},
@@ -1975,7 +1975,7 @@
 							"_parent": {
 								"$ref": "AAAAAAGAwiw8KFEfGBQ="
 							},
-							"name": ":recruitmentClosing",
+							"name": ":closeRecruitment",
 							"represent": {
 								"$ref": "AAAAAAGAwjCVblJ8Cr8="
 							},
@@ -1987,7 +1987,7 @@
 							"_parent": {
 								"$ref": "AAAAAAGAwiw8KFEfGBQ="
 							},
-							"name": ":ChangeEmploymentUI",
+							"name": ":closeRecruitmentUI",
 							"represent": {
 								"$ref": "AAAAAAGAwjD6c1KbbH8="
 							},

@@ -46,7 +46,7 @@
 											"font": "Arial;13;0",
 											"left": 24.72998046875,
 											"top": 5,
-											"width": 86.2236328125,
+											"width": 75.693603515625,
 											"height": 13,
 											"text": "채용 정보 등록"
 										},
@@ -117,7 +117,7 @@
 													"top": 167,
 													"width": 126,
 													"height": 13,
-													"text": ":AddEmployment"
+													"text": ":addRecruitment"
 												},
 												{
 													"_type": "LabelView",
@@ -217,7 +217,7 @@
 													"top": 167,
 													"width": 120.61181640625,
 													"height": 13,
-													"text": ":AddEmploymentUI"
+													"text": ":addRecruitmentIUI"
 												},
 												{
 													"_type": "LabelView",
@@ -530,7 +530,7 @@
 											},
 											"visible": false,
 											"font": "Arial;13;0",
-											"left": 300,
+											"left": 315,
 											"top": 172,
 											"height": 13,
 											"alpha": 1.5707963267948966,
@@ -551,7 +551,7 @@
 											},
 											"visible": null,
 											"font": "Arial;13;0",
-											"left": 300,
+											"left": 315,
 											"top": 157,
 											"height": 13,
 											"alpha": 1.5707963267948966,
@@ -572,7 +572,7 @@
 											},
 											"visible": false,
 											"font": "Arial;13;0",
-											"left": 299,
+											"left": 314,
 											"top": 201,
 											"height": 13,
 											"alpha": -1.5707963267948966,
@@ -593,8 +593,8 @@
 											},
 											"visible": false,
 											"font": "Arial;13;0",
-											"left": 219,
-											"top": 171,
+											"left": 249,
+											"top": 172,
 											"height": 13,
 											"alpha": 0.5235987755982988,
 											"distance": 30,
@@ -614,8 +614,8 @@
 											},
 											"visible": false,
 											"font": "Arial;13;0",
-											"left": 221,
-											"top": 157,
+											"left": 251,
+											"top": 158,
 											"height": 13,
 											"alpha": 0.7853981633974483,
 											"distance": 40,
@@ -635,8 +635,8 @@
 											},
 											"visible": false,
 											"font": "Arial;13;0",
-											"left": 214,
-											"top": 198,
+											"left": 244,
+											"top": 199,
 											"height": 13,
 											"alpha": -0.5235987755982988,
 											"distance": 25,
@@ -714,7 +714,7 @@
 										"$ref": "AAAAAAGA0tb3dAg8TYg="
 									},
 									"lineStyle": 1,
-									"points": "193:192;407:194",
+									"points": "223:193;407:194",
 									"showVisibility": true,
 									"nameLabel": {
 										"$ref": "AAAAAAGAwjG+6lcx2IU="
@@ -765,13 +765,13 @@
 												"$ref": "AAAAAAGAwjG+61c7tUg="
 											},
 											"font": "Arial;13;0",
-											"left": 141.8798828125,
-											"top": 166,
+											"left": 156.8798828125,
+											"top": 158,
 											"width": 316.240234375,
 											"height": 13,
 											"alpha": 1.5707963267948966,
 											"distance": 10,
-											"text": "1 : createEmployment( )"
+											"text": "1 : addRecruitmentInfo( )"
 										},
 										{
 											"_type": "NodeLabelView",
@@ -784,8 +784,8 @@
 											},
 											"visible": false,
 											"font": "Arial;13;0",
-											"left": 300,
-											"top": 151,
+											"left": 315,
+											"top": 143,
 											"height": 13,
 											"alpha": 1.5707963267948966,
 											"distance": 25
@@ -801,19 +801,19 @@
 											},
 											"visible": false,
 											"font": "Arial;13;0",
-											"left": 300,
-											"top": 166,
+											"left": 315,
+											"top": 158,
 											"height": 13,
 											"alpha": 1.5707963267948966,
 											"distance": 10
 										}
 									],
 									"font": "Arial;13;0",
-									"left": 281,
-									"top": 183,
+									"left": 296,
+									"top": 175,
 									"width": 39,
-									"alpha": 1.5707963267948966,
-									"distance": 10,
+									"alpha": 1.5816649072352764,
+									"distance": 18,
 									"hostEdge": {
 										"$ref": "AAAAAAGAwjG+6lcwXtY="
 									},
@@ -1084,13 +1084,13 @@
 												"$ref": "AAAAAAGAwjLNTFpUOPM="
 											},
 											"font": "Arial;13;0",
-											"left": 566.842529296875,
+											"left": 559.685546875,
 											"top": 160,
-											"width": 140.31494140625,
+											"width": 154.62890625,
 											"height": 13,
 											"alpha": 1.2679108890250088,
 											"distance": 16.76305461424021,
-											"text": "1.1 : addEmployment( )"
+											"text": "1.1 : addRecruitmentInfo( )"
 										},
 										{
 											"_type": "NodeLabelView",
@@ -1740,13 +1740,13 @@
 												"$ref": "AAAAAAGAwksa7YWe+sw="
 											},
 											"font": "Arial;13;0",
-											"left": 677.340576171875,
+											"left": 669.7646484375,
 											"top": 278.5,
-											"width": 150.31884765625,
+											"width": 165.470703125,
 											"height": 13,
 											"alpha": -3.926991066987304,
 											"distance": 28.284271247461902,
-											"text": "1.1.1 : addEmployment( )"
+											"text": "1.1.1 : addRecruitmentInfo( )"
 										},
 										{
 											"_type": "NodeLabelView",
@@ -1844,9 +1844,9 @@
 													"font": "Arial;13;1",
 													"left": 101,
 													"top": 214,
-													"width": 86.8544921875,
+													"width": 117.01904296875,
 													"height": 13,
-													"text": ": Member"
+													"text": ": CompanyMember"
 												},
 												{
 													"_type": "LabelView",
@@ -1879,7 +1879,7 @@
 											"font": "Arial;13;0",
 											"left": 96,
 											"top": 207,
-											"width": 96.8544921875,
+											"width": 127.01904296875,
 											"height": 25,
 											"stereotypeLabel": {
 												"$ref": "AAAAAAGA0tb3dAg+s/k="
@@ -1898,7 +1898,7 @@
 									"font": "Arial;13;0",
 									"left": 96,
 									"top": 152,
-									"width": 96.8544921875,
+									"width": 127.01904296875,
 									"height": 81,
 									"stereotypeDisplay": "icon",
 									"nameCompartment": {
@@ -1916,7 +1916,7 @@
 							"_parent": {
 								"$ref": "AAAAAAGAwiw8KFEfGBQ="
 							},
-							"name": "createEmployment",
+							"name": "addRecruitmentInfo",
 							"source": {
 								"$ref": "AAAAAAGA0tb3dAg731M="
 							},
@@ -1935,7 +1935,7 @@
 							"_parent": {
 								"$ref": "AAAAAAGAwiw8KFEfGBQ="
 							},
-							"name": "addEmployment",
+							"name": "addRecruitmentInfo",
 							"source": {
 								"$ref": "AAAAAAGAwjD6c1KcxHg="
 							},
@@ -1954,7 +1954,7 @@
 							"_parent": {
 								"$ref": "AAAAAAGAwiw8KFEfGBQ="
 							},
-							"name": "addEmployment",
+							"name": "addRecruitmentInfo",
 							"source": {
 								"$ref": "AAAAAAGAwjCVblJ9BW0="
 							},
@@ -1975,7 +1975,7 @@
 							"_parent": {
 								"$ref": "AAAAAAGAwiw8KFEfGBQ="
 							},
-							"name": ":AddEmployment",
+							"name": ":addRecruitment",
 							"represent": {
 								"$ref": "AAAAAAGAwjCVblJ8Cr8="
 							},
@@ -1987,7 +1987,7 @@
 							"_parent": {
 								"$ref": "AAAAAAGAwiw8KFEfGBQ="
 							},
-							"name": ":AddEmploymentUI",
+							"name": ":addRecruitmentIUI",
 							"represent": {
 								"$ref": "AAAAAAGAwjD6c1KbbH8="
 							},
@@ -2024,7 +2024,7 @@
 					"_parent": {
 						"$ref": "AAAAAAGAwiw8KFEe4tg="
 					},
-					"name": "Member"
+					"name": "CompanyMember"
 				}
 			],
 			"attributes": [
