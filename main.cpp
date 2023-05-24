@@ -11,24 +11,22 @@ using namespace std;
 #define INPUT_FILE_NAME "input.txt“
 #define OUTPUT_FILE_NAME "output.txt"
 
-
+//함수 선언
 void doTask();
 void program_exit();
-/* 함수 선언
-void join(); //1.1 회원가입
-             //1.2 회원탈퇴
-...          //2.1 로그인
-             //2.2 로그아웃
-             ..이런식으로 함수이름 뒤에 주석 기입 번호와 함께
-*/
-//3.1 채용 정보 등록
+void registerMember()
+void withdrawMember();
+void login();
+void logout();
 void addRecruitmentInfo();
-//3.2 등록된 채용 정보 조회
 void getRecruitment();
-//4.4 지원 취소
-void removeApplicant(const string& applicant);
+void searchRecruitment();
+void applyInput();
+void getApplication();
+void removeApplicant();
+void getApplicationStats();
 
-//entity class ... 
+//entity class ...
 
 class member {
 private:
@@ -63,16 +61,22 @@ class CeneralMember :public member {
 private:
     int idNumber;
     vector<RecruitmentInfo> recruitmentList;
-    RecruitmentInfo* currentRecrutitmetInfo = NULL;
 public:
     CeneralMember(string n, string ad, string i, string p, int idN) :member(n, ad, i, p) {
         idNumber = idN;
     }
-    //지원자 삭제
-    void removeApplicant(const string& applicant) {
+    vector<RecruitmentInfo> getRecruitmentList() {
+        return recruitmentList;
+    }
+    void addRecruitment(RecruitmentInfo r) {
+        recruitmentList.push_back(r);
+    }
+    
+    //지원 취소 파트
+    void removeRecruitment(Recruitment r) {
         for (auto it = recruitmentList.begin(); it != recruitmentList.end(); ++it) {
-            if (*it == applicant) {
-                applicants.erase(it);
+            if (r == &it) {
+                recruitmentList.erase(it);
                 break;
             }
         }
@@ -81,21 +85,28 @@ public:
 
 class CompanyMember :public member {
 private:
-    int businessNumber;
-    string businessField;
-    vector<RecruitmentInfo> recruitmentList;
+    RecruitmentInfo recruitment;
     RecruitmentInfo* currentRecrutitmetInfo = NULL;
 public:
     CompanyMember(string n, string ad, string i, string p, int bn, string bf) :member(n, ad, i, p) {
         businessNumber = bn;
         businessField = bf;
     }
-    void addRecruitment(string job, string numberOfPeople, string applicationDeadLine) {
-        RecruitmentInfo r(job, numberOfPeople, applicationDeadLine);
-        recruitmentList.push_back(r);
+    
+    int getBusinessNumber() {
+        return businessNumber;
     }
-    vector<RecruitmentInfo> getRecruitmentList(){
-        return recruitmentList;
+    string getBusinessField() {
+        return businessField;
+    }
+    RecruitmentInfo getRecruitment() {
+        return recruitment;
+    }
+
+    void addRecruitment(string job, string numberOfPeople, string applicationDeadLine) {
+        recruitment.setJob = job;
+        recruitment.setNumberOfPeople = numberOfPeople;
+        recruitment.setApplicationDeadLine = applicationDeadLine;
     }
 };
 
@@ -104,10 +115,7 @@ private:
     string job;
     string numberOfPeople;
     string applicationDeadLine;
-    int businessNumber;
-    string businessField;
     bool deadLine; 
-    vector<string> applicants; // 지원자 목록 백터 추가
 public:
     RecruitmentInfo(string j, string n, string a, bool d = 0) {
         job = j;
@@ -127,6 +135,18 @@ public:
     bool getDeadeLine() {
         return deadLine;
     }
+    void setJob(string j) {
+        job = j;
+    }
+    void setNumberOfPeople(string n) {
+        numberOfPeople = n;
+    }
+    void setApplicationDeadLine(string a) {
+        applicationDeadLine = a;
+    }
+    void setDeadLine(bool d) {
+        deadLine = d;
+    }
 };
 
 // 변수 선언 (필요하면 추가로 선언 후 사용)
@@ -134,107 +154,311 @@ ifstream in_fp;
 ofstream out_fp;
 vector<CeneralMember> generalMemberList;
 vector<CompanyMember> companyMemberList;
-vector<RecruitmentInfo> recruitmentList;
 CeneralMember* currentGeneralMember = NULL;
 CompanyMember* currentCompanyMember = NULL;
 
 
 //바운더리 클래스 컨트롤 클래스 ...
 //1.1 회원가입 
-class RegisterUI {};
-class Register {};
-
-//3.1 채용 정보 등록
-
-class addNewRecruitment {
+class Register {
 public:
-    static void addRecruitment(string job, string numberOfPeople, string applicationDeadLine) {
-        currentCompanyMember->addRecruitment(job, numberOfPeople, applicationDeadLine);
+    static void setGeneralRegisterInfo(string name, string ssn, string id, string pw) {
+        GeneralMember newGeneralMember(name, ssn, id, pw);
+        generalMemberList.push_back(newGeneralMember);
+    };
+    static void setCompanyRegisterInfo(string name, string bn, string id, string pw) {
+        CompanyMember newCompanyMember(name, bn, id, pw);
+        companyMemberList.push_back(newCompanyMember);
+    };
+};
+class RegisterUI {
+public:
+    static void selectgeneralRegisterUI(string name, string ssn, string id, string pw) {
+        Register::setGeneralRegisterInfo(name, ssn, id, pw);
+    }
+    static void selectcompanyRegisterUI(string name, string bn, string id, string pw) {
+        Register::setCompanyRegisterInfo(name, bn, id, pw);
     }
 };
 
+//1.2 회원탈퇴
+class Unregister {
+public:
+    static void withdraw() {
+        if (currentCompanyMember != NULL) {
+            out_fp << ">[" << currentCompanyMember->getId() << "]";
+            companyMemberList.erase(currentCompanyMember);
+        }
+        if (currentGeneralMember != NULL) {
+            out_fp << ">[" << currentGeneralMember->getId() << "]";
+            generalMemberList.erase(currentCompanyMember);
+        }
+    }
+};
+class UnregisterUI {
+public:
+    static void selectUnregisterUI() {
+        Unregister::withdraw();
+    }
+};
+
+//2.1 로그인
+class Login {
+public:
+    static void callLogin(string id, string pw) {
+        for (auto it = generalMemberList.begin(); it != generalMemberList.end(); ++it) {
+            if (it->getId==id && it->getPassword==pw) {
+                currentGeneralMember = it;
+                out_fp << ">["<<id<<"][" << pw<<"]\n";
+            }
+        }
+        for (auto it = companyMemberList.begin(); it != companyMemberList.end(); ++it) {
+            if (it->getId == id && it->getPassword == pw) {
+                currentCompanyMember = it;
+                out_fp << ">[" << id << "][" << pw << "]\n";
+            }
+        }
+    }
+};
+class LoginUI {
+public:
+    static void selectLoginUI(string id, string pw) {
+        Login::callLogin(id, pw);
+    }
+};
+
+//2.2 로그아웃
+class Logout {
+public:
+    static void callLogout() {
+        if (currentCompanyMember != NULL) currentCompanyMember = NULL;
+        if (currentGeneralMember != NULL) currentGeneralMember = NULL;
+    }
+};
+class LogoutUI {
+public:
+    static void selectLogoutUI() {
+        Logout::callLogout();
+    }
+};
+
+//3.1 채용 정보 등록
+class addNewRecruitment {
+public:
+    static void add_Recruitment(string job, string numberOfPeople, string applicationDeadLine) {
+        currentCompanyMember->addRecruitment(job, numberOfPeople, applicationDeadLine);
+        out_fp << ">[" << job << "][" << numberOfPeople << "][" << applicationDeadLine << "]\n";
+    }
+};
 class addRecruitmentUI {
 public:
     static void createRecruitment(string job, string numberOfPeople, string applicationDeadLine) {
-        addNewRecruitment::addRecruitment(job, numberOfPeople, applicationDeadLine);
+        addNewRecruitment::add_Recruitment(job, numberOfPeople, applicationDeadLine);
     }
 
 };
+
 //3.2 등록된 채용 정보 조회
 class GetRecruitmentInfoUI {
 public:
-    static void call_recruitmentinfo(){
-        GetRecruitmentInfoUI::getRecruitment;
-};
-
-class GetRecruitmentInfo {
-    recruitmentList=currentCompanyMember->getRecruitmentList;
-    for (auto it = recruitmentList.begin(); it != recruitmentList.end(); ++it)
-    {
-        
+    static void call_recruitmentinfo() {
+        GetRecruitmentInfo::getRecruitment;
     }
+};
+class GetRecruitmentInfo {
+public
+    static void getRecruitment() {
+    RecruitmentInfo r = currentCompanyMember->getRecruitment();
+    out_fp << ">" << r.getJob() << r.getNumberOfPeople() << r.getApplicationDeadLine() << "\n";
     }
 };
 
 //4.1 채용 정보 검색
 class RecruitmentSearchUI {
+public:
+    static void call_recruitmentSearch(string name) {
+        RecruitmentSearchInfo::recruitmentSearch(number);
+    }
 };
-class RecruitmentSearch{};
+class RecruitmentSearchInfo{
+public:
+    static void recruitmentSearch(string name) {
+        for (auto it = companyMemberList.begin(); it != companyMemberList.end(); ++it) {
+            if (name = it->getName()) {
+                RecruitmentInfo r = it->getRecruitment();
+                out_fp << ">" << it->getName() << it->getBusinessNumber << r.getJob() << r.getNumberOfPeople() << r.getApplicationDeadLine() << "\n";
+            }
+        }
+    }
+};
 
 //4.2 채용 지원
-class ApplyForRecruitmentUI{};
-class ApplyForRecruitment{};
+class ApplyForRecruitmentUI{
+public:
+    static void apply(int number) {
+        ApplyForRecruitment::applyRecruitment();
+    }
+};
+class ApplyForRecruitment{
+public:
+    static void applyRecruitment(int number)
+    {
+        for (auto it = companyMemberList.begin(); it != companyMemberList.end(); ++it) {
+            if (name = it->getBusinessNumber()) {
+                RecruitmentInfo r = it->getRecruitment();
+                out_fp << ">" << it->getName() << it->getBusinessNumber << r.getJob() << "\n";
+                currentGeneralMember->addRecruitment(r); 
+            }
+        }
+    }
+};
+
 //4.3 지원 정보 조회
-class GetApplicationInformationUI{};
-class GetApplicationInformation{};
+class GetApplicationInformationUI{
+public:
+    static void getApplicationInfo() {
+        GetApplicationInformation::showAppInfo();
+    }
+};
+class GetApplicationInformation{
+public:
+    static void showAppInfo() {
+        vector<RecruitmentInfo> list = currentGeneralMember->getRecruitmentList();
+        //일반회원이 지원한 채용 리스트를 복제해온뒤
+        for (auto it = companyMemberList.begin(); it != companyMemberList.end(); ++it) {
+            for (auto i = list.begin(); i != list.end(); ++i) {
+                if (it->getRecruitment() == &i) {//회사회원 전체를 스캔해 같은 채용이면 
+                    out_fp << ">" << it->getName() << it->getBusinessNumber() << i->getJob() << i->getNumberOfPeople() << i->getApplicationDeadLine() << "\n";
+                }
+            }
+        }
+    }// 더 간단하게 할 수 있을것 같은데 방법을 잘 모르겠음
+};
 
 //4.4 지원 취소
-class CancelApplication {
+class CancelApplicationInfo {
 public:
-    static void cancelApplication(const string& applicant) {
-        currentGeneralMember->cancelApplication(applicant);
+    static void cancelApplication(string applicant) {
+        vector<RecruitmentInfo> list = currentGeneralMember->getRecruitmentList();
+        //일반회원이 지원한 채용 리스트를 복제해온뒤
+        for (auto it = companyMemberList.begin(); it != companyMemberList.end(); ++it) {
+            for (auto i = list.begin(); i != list.end(); ++i) {
+                if (it->getRecruitment() == &i) {//회사회원 전체를 스캔해 같은 채용이면 
+                    out_fp << ">" << it->getName() << it->getBusinessNumber() << i->getJob() << "\n";
+                    currentGeneralMember->removeRecruitment(it->getRecruitment());
+                }
+            }
+        }
+    }// 더 간단하게 할 수 있을것 같은데 방법을 잘 모르겠음
     }
 };
 class CancelApplicationUI {
 public:
-    static void cancelApplication(const string& applicant) {
-        CancelApplication::cancelApplication(applicant);
+    static void cancelCallApplication(string applicant) {
+        CancelApplicationInfo::cancelApplication(applicant);
+    }
+};
+
+//5.1 지원 정보 통계
+class GetApplicationStatsUI {
+public:
+    static void showApplicationStats() {
+        GetApplicationStatsInfo::getApplicationStats();
+    }
+};
+class GetApplicationStatsInfo {
+public:
+    static void getApplicationStats() {
+        string job;
+        int count = 0;
+        if (currentCompanyMember != NULL) {//회사회원이 로그인 상태일 경우
+            for (auto it = generalMemberList.begin(); it != generalMemberList.end(); ++it) {
+                vector<RecruitmentInfo> list = it->getRecruitmentList();
+                for (auto i = list.begin(); i != list.end(); ++i) {
+                    if (currentCompanyMember->addRecruitment() == &i) {
+                        job = i->getJob();
+                        count++;
+                    }
+                }
+            }
+            out_fp << ">" << job << count << "\n";
+        }
+        if (currentGeneralMember != NULL) {//일반회원이 로그인 상태일 경우
+            vector<RecruitmentInfo> list = currentGeneralMember->getRecruitmentList();
+            for (auto i = list.begin(); i != list.end(); ++i) {
+                out_fp << ">" << i->getJob() << list.size();
+            }
+        }
     }
 };
 
 //함수 선언 했던 것들 구체화
+
 //1.1 회원가입
-void join() {
-    string name, address, ID, password;
-    in_fp >> name >> address >> ID >> password;
+void registerMember() {
+    string name, number, ID, password,memberType;
+    in_fp >> memberType>> name >> number >> ID >> password;
 
-    out_fp << "1.1 회원가입\n";
-    out_fp << name << ID;
-    //과제 입출력 참고..
-}
+    if (memberType == 1) RegisterUI::selectgeneralRegisterUI(name, number, ID, password);
+    if (memberType == 2) RegisterUI::selectcompanyRegisterUI(name, number, ID, password);
+    out_fp <<"<"<<memberType<<"["<< name<<"][" << number<<"][" << ID<<"][" << password<<"]"\n;
+};
 
-//1.2 회원탈퇴..
+//1.2 회원탈퇴 
+void withdrawMember() {
+    UnregisterUI::selectUnregisterUI();
+};
+
+//2.1 로그인 
+void login() {
+    string id, pw;
+    in_fp >> id >> pw;
+    LoginUI::selectLoginUI(id, pw);
+};
+
+//2.2 로그아웃
+void logout() {
+    LogoutUI::selectLogoutUI();
+};
 
 //3.1 채용 정보 등록
 void addRecruitmentInfo() {
     string job, numberOfPeople, applicationDeadLine;
     in_fp >> job >> numberOfPeople >> applicationDeadLine;
     addRecruitmentUI::createRecruitment(job, numberOfPeople, applicationDeadLine);
-    out_fp << ">[" << job << "][" << numberOfPeople << "][" << applicationDeadLine << "]\n";
 }
+
 //3.2 등록된 채용 정보 조회
 void getRecruitment(){
-    
+    GetRecruitmentInfoUI::call_recruitmentinfo();
+}
+
+//4.1 채용 정보 검색
+void searchRecruitment() {
+    string str;
+    in_fp >> str;
+    RecruitmentSearchUI::call_recruitmentSearch(str);
+}
+
+//4.2 채용 지원
+void applyInput() {
+    int num;
+    in_fp >> num;
+    ApplyForRecruitmentUI::apply(num);
+}
+//4.3 지원 정보 조회
+void getApplication() {
+    GetApplicationInformationUI::getApplicationInfo();
 }
 
 //4.4 지원 취소
-void removeApplicant(const string& applicant) {
-    for (auto it = applicants.begin(); it != applicants.end(); ++it) {
-        if (*it == applicant) {
-            applicants.erase(it);
-            break;
-        }
-    }
+void removeApplicant() {
+    string str;
+    CancelApplicationUI::cancelCallApplication(str);
+}
+//5.1 지원 정보 통계
+void getApplicationStats() {
+    GetApplicationStatsUI::showApplicationStats();
 }
 
 //main
@@ -243,12 +467,9 @@ int main()
     // 파일 입출력을 위한 초기화
     in_fp.open(INPUT_FILE_NAME);
     out_fp.open(OUTPUT_FILE_NAME);
+    doTask();
     return 0;
 }
-
-
-
-
 
 
 void doTask()
@@ -273,11 +494,13 @@ void doTask()
             case 1:   // "1.1. 회원가입“ 메뉴 부분
             {
                 out_fp << "1.1. 회원가입\n";
+                registerMember();
                 break;
             }
             case 2:
             {
                 out_fp << "1.2. 회원탈퇴\n";
+                withdrawMember();
                 break;
             }
             }
@@ -287,14 +510,14 @@ void doTask()
             {
             case 1:
             {
-
                 out_fp << "2.1. 로그인\n";
+                login();
                 break;
             }
             case 2:
             {
                 out_fp << "2.2. 로그아웃\n";
-
+                logout();
                 break;
             }
             }
@@ -313,7 +536,7 @@ void doTask()
             case 2:
             {
                 out_fp << "3.2. 등록된 채용 정보 조회\n";
-
+                getRecruitment();
                 break;
             }
             }
@@ -326,25 +549,25 @@ void doTask()
             case 1:
             {
                 out_fp << "4.1. 채용 정보 검색\n";
-
+                searchRecruitment();
                 break;
             }
             case 2:
             {
                 out_fp << "4.2. 채용 지원\n";
-
+                applyInput();
                 break;
             }
             case 3:
             {
                 out_fp << "4.3. 지원 정보 조회\n";
-
+                getApplication();
                 break;
             }
             case 4:
             {
                 out_fp << "4.4. 지원 취소\n";
-
+                removeApplicant();
                 break;
             }
             }
@@ -357,7 +580,7 @@ void doTask()
             case 1:
             {
                 out_fp << "5.1. 지원 정보 통계\n";
-
+                getApplicationStats();
                 break;
             }
             }
