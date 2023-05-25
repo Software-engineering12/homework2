@@ -30,12 +30,12 @@ void getApplicationStats();
 
 class member {
 private:
-    string name;
-    string memberType;
-    string address;
-    int phoneNumber;
-    string id;
-    string password;
+    string name; //회원 이름
+    string memberType; //회원 타입 (일반 회원, 회사 회원 구분)
+    string address; // 주소
+    int phoneNumber; // 핸드폰 번호
+    string id; // 회원 ID
+    string password; // 비밀 번호
 public:
     member(string n, string ad, string i, string p) {
         name = n;
@@ -57,12 +57,12 @@ public:
     }
 };
 
-class CeneralMember :public member {
+class GeneralMember :public member {
 private:
-    int idNumber;
+    int idNumber; // 주민 번호
     vector<RecruitmentInfo> recruitmentList;
 public:
-    CeneralMember(string n, string ad, string i, string p, int idN) :member(n, ad, i, p) {
+    GeneralMember(string n, string ad, string i, string p, int idN) :member(n, ad, i, p) {
         idNumber = idN;
     }
     vector<RecruitmentInfo> getRecruitmentList() {
@@ -87,6 +87,7 @@ class CompanyMember :public member {
 private:
     RecruitmentInfo recruitment;
     RecruitmentInfo* currentRecrutitmetInfo = NULL;
+    int businessNumber; // 사업자 번호
 public:
     CompanyMember(string n, string ad, string i, string p, int bn, string bf) :member(n, ad, i, p) {
         businessNumber = bn;
@@ -112,12 +113,12 @@ public:
 
 class RecruitmentInfo {
 private:
-    string job;
-    string numberOfPeople;
-    string applicationDeadLine;
-    bool deadLine; 
+    string job; // 업무
+    int numberOfPeople; // 인원 수
+    string applicationDeadLine; // 마감일
+    bool deadLine; //마감 여부
 public:
-    RecruitmentInfo(string j, string n, string a, bool d = 0) {
+    RecruitmentInfo(string j, int n, string a, bool d = 0) {
         job = j;
         numberOfPeople = n;
         applicationDeadLine = a;
@@ -126,7 +127,7 @@ public:
     string getJob() {
         return job;
     }
-    string getNumberOfPeople() {
+    int getNumberOfPeople() {
         return numberOfPeople;
     }
     string getApplicationDeadLine() {
@@ -138,7 +139,7 @@ public:
     void setJob(string j) {
         job = j;
     }
-    void setNumberOfPeople(string n) {
+    void setNumberOfPeople(int n) {
         numberOfPeople = n;
     }
     void setApplicationDeadLine(string a) {
@@ -152,9 +153,9 @@ public:
 // 변수 선언 (필요하면 추가로 선언 후 사용)
 ifstream in_fp;
 ofstream out_fp;
-vector<CeneralMember> generalMemberList;
+vector<GeneralMember> generalMemberList;
 vector<CompanyMember> companyMemberList;
-CeneralMember* currentGeneralMember = NULL;
+GeneralMember* currentGeneralMember = NULL;
 CompanyMember* currentCompanyMember = NULL;
 
 
@@ -186,11 +187,11 @@ class Unregister {
 public:
     static void withdraw() {
         if (currentCompanyMember != NULL) {
-            out_fp << ">[" << currentCompanyMember->getId() << "]";
+            out_fp << currentCompanyMember->getId() << endl;
             companyMemberList.erase(currentCompanyMember);
         }
         if (currentGeneralMember != NULL) {
-            out_fp << ">[" << currentGeneralMember->getId() << "]";
+            out_fp<< currentGeneralMember->getId() << endl;
             generalMemberList.erase(currentCompanyMember);
         }
     }
@@ -209,13 +210,13 @@ public:
         for (auto it = generalMemberList.begin(); it != generalMemberList.end(); ++it) {
             if (it->getId==id && it->getPassword==pw) {
                 currentGeneralMember = it;
-                out_fp << ">["<<id<<"][" << pw<<"]\n";
+                out_fp << ">" << id << pw << \n;
             }
         }
         for (auto it = companyMemberList.begin(); it != companyMemberList.end(); ++it) {
             if (it->getId == id && it->getPassword == pw) {
                 currentCompanyMember = it;
-                out_fp << ">[" << id << "][" << pw << "]\n";
+                out_fp << ">" << id << pw << \n;
             }
         }
     }
@@ -247,7 +248,7 @@ class addNewRecruitment {
 public:
     static void add_Recruitment(string job, string numberOfPeople, string applicationDeadLine) {
         currentCompanyMember->addRecruitment(job, numberOfPeople, applicationDeadLine);
-        out_fp << ">[" << job << "][" << numberOfPeople << "][" << applicationDeadLine << "]\n";
+        out_fp << ">" << job  << numberOfPeople  << applicationDeadLine << \n;
     }
 };
 class addRecruitmentUI {
@@ -274,10 +275,20 @@ public
 };
 
 //4.1 채용 정보 검색
+
 class RecruitmentSearchUI {
 public:
+    static void SearchRecritment() {
+        string CompanyName;
+        in_fp >> CompanyName;
+        RecruitmentSearch::call_recruitmentSearch(CompanyName);
+    }
+};
+
+class RecruitmentSearch {
+public:
     static void call_recruitmentSearch(string name) {
-        RecruitmentSearchInfo::recruitmentSearch(number);
+        RecruitmentSearchInfo::recruitmentSearch(name);
     }
 };
 class RecruitmentSearchInfo{
@@ -293,13 +304,22 @@ public:
 };
 
 //4.2 채용 지원
-class ApplyForRecruitmentUI{
+class ApplyForRecruitmentUI {
 public:
-    static void apply(int number) {
-        ApplyForRecruitment::applyRecruitment();
+    static void callApply() {
+        int number;
+        in_fp >> number;
+        ApplyForRecruitment::apply(number);
     }
 };
-class ApplyForRecruitment{
+
+class ApplyForRecruitment {
+public:
+    static void apply(int number) {
+        RecruitmentApply :: applyRecruitment(number);
+    }
+};
+class RecruitmentApply {
 public:
     static void applyRecruitment(int number)
     {
@@ -314,13 +334,21 @@ public:
 };
 
 //4.3 지원 정보 조회
-class GetApplicationInformationUI{
+class GetApplicationInformationUI {
 public:
-    static void getApplicationInfo() {
-        GetApplicationInformation::showAppInfo();
+    static void callGetApplicationInfo() {
+        GetApplicationInformation::getApplicationInfo();
     }
 };
-class GetApplicationInformation{
+
+class GetApplicationInformation {
+public:
+    static void getApplicationInfo() {
+        ApplicationInformation::showAppInfo();
+    }
+};
+
+class ApplicationInformation{
 public:
     static void showAppInfo() {
         vector<RecruitmentInfo> list = currentGeneralMember->getRecruitmentList();
