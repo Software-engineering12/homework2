@@ -1,20 +1,23 @@
+﻿
 // 헤더 선언 (필요하면 추가로 선언)
 #include <fstream>
 #include <string.h>
 #include<iostream>
 #include<vector>
+#include<map>
+#include<iomanip>
 
 using namespace std;
 
 // 상수 선언
 #define MAX_STRING 32
-#define INPUT_FILE_NAME "input.txt“
+#define INPUT_FILE_NAME "input.txt"
 #define OUTPUT_FILE_NAME "output.txt"
 
 //함수 선언
 void doTask();
 void program_exit();
-void registerMember()
+void registerMember();
 void withdrawMember();
 void login();
 void logout();
@@ -30,24 +33,12 @@ void getApplicationStats();
 
 class member {
 private:
-    string name; //회원 이름
-    string memberType; //회원 타입 (일반 회원, 회사 회원 구분)
-    string address; // 주소
-    int phoneNumber; // 핸드폰 번호
-    string id; // 회원 ID
-    string password; // 비밀 번호
+    string id;
+    string password;
 public:
-    member(string n, string ad, string i, string p) {
-        name = n;
-        address = ad;
+    member(string i, string p) {
         id = i;
         password = p;
-    }
-    string getName() {
-        return name;
-    }
-    string getAddress() {
-        return address;
     }
     string getId() {
         return id;
@@ -59,70 +50,51 @@ public:
 
 class GeneralMember :public member {
 private:
-    int idNumber; // 주민 번호
-    vector<RecruitmentInfo> recruitmentList;
+    string name;
+    int idNumber;
 public:
-    GeneralMember(string n, string ad, string i, string p, int idN) :member(n, ad, i, p) {
+    GeneralMember(string n, int idN,string i,string p) :member(i,p) {
+        name = n;
         idNumber = idN;
     }
-    vector<RecruitmentInfo> getRecruitmentList() {
-        return recruitmentList;
+    string getName() {
+        return name;
     }
-    void addRecruitment(RecruitmentInfo r) {
-        recruitmentList.push_back(r);
-    }
-    
-    //지원 취소 파트
-    void removeRecruitment(Recruitment r) {
-        for (auto it = recruitmentList.begin(); it != recruitmentList.end(); ++it) {
-            if (r == &it) {
-                recruitmentList.erase(it);
-                break;
-            }
-        }
+    int getIdNumber() {
+        return idNumber;
     }
 };
 
 class CompanyMember :public member {
 private:
-    RecruitmentInfo recruitment;
-    RecruitmentInfo* currentRecrutitmetInfo = NULL;
-    int businessNumber; // 사업자 번호
+    int businessNumber;
+    string businessField;
 public:
-    CompanyMember(string n, string ad, string i, string p, int bn, string bf) :member(n, ad, i, p) {
+    CompanyMember(string bf,int bn,string i,string p) :member(i, p) {
         businessNumber = bn;
         businessField = bf;
     }
-    
     int getBusinessNumber() {
         return businessNumber;
     }
     string getBusinessField() {
         return businessField;
     }
-    RecruitmentInfo getRecruitment() {
-        return recruitment;
-    }
-
-    void addRecruitment(string job, string numberOfPeople, string applicationDeadLine) {
-        recruitment.setJob = job;
-        recruitment.setNumberOfPeople = numberOfPeople;
-        recruitment.setApplicationDeadLine = applicationDeadLine;
-    }
 };
 
 class RecruitmentInfo {
 private:
-    string job; // 업무
-    int numberOfPeople; // 인원 수
-    string applicationDeadLine; // 마감일
-    bool deadLine; //마감 여부
+    string job;
+    int numberOfPeople;
+    string applicationDeadLine;
+    vector<int> idNumber; //일반 회원 정보
+    int businessNumber=-1;    //회사 회원 정보
+    string businessField="NULL";
 public:
-    RecruitmentInfo(string j, int n, string a, bool d = 0) {
+    RecruitmentInfo(string j, int np, string a) {
         job = j;
-        numberOfPeople = n;
+        numberOfPeople = np;
         applicationDeadLine = a;
-        deadLine = d;
     }
     string getJob() {
         return job;
@@ -133,20 +105,29 @@ public:
     string getApplicationDeadLine() {
         return applicationDeadLine;
     }
-    bool getDeadeLine() {
-        return deadLine;
+    vector<int> getIdNumber() {
+        return idNumber;
     }
-    void setJob(string j) {
-        job = j;
+    int getBusineesNumber() {
+        return businessNumber;
     }
-    void setNumberOfPeople(int n) {
-        numberOfPeople = n;
+    string getBusinessField() {
+        return businessField;
     }
-    void setApplicationDeadLine(string a) {
-        applicationDeadLine = a;
+    int getNumberSize() {
+        return idNumber.size();
     }
-    void setDeadLine(bool d) {
-        deadLine = d;
+    void setIdNumber(int idn) {
+        idNumber.push_back(idn);
+    }
+    void setBusinessNumber(int bs) {
+        businessNumber = bs;
+    }
+    void setBusinessField(string bf) {
+        businessField = bf;
+    }
+    void deleteIdNumber(int num) {
+        idNumber.erase(remove(idNumber.begin(), idNumber.end(), num), idNumber.end());
     }
 };
 
@@ -155,29 +136,31 @@ ifstream in_fp;
 ofstream out_fp;
 vector<GeneralMember> generalMemberList;
 vector<CompanyMember> companyMemberList;
-GeneralMember* currentGeneralMember = NULL;
-CompanyMember* currentCompanyMember = NULL;
+GeneralMember* currentGeneralMember=NULL;
+CompanyMember* currentCompanyMember=NULL;
+vector<RecruitmentInfo> recruitmentList;
+
 
 
 //바운더리 클래스 컨트롤 클래스 ...
-//1.1 회원가입 
+//1.1 회원가입
 class Register {
 public:
-    static void setGeneralRegisterInfo(string name, string ssn, string id, string pw) {
+    static void setGeneralRegisterInfo(string name, int ssn, string id, string pw) {
         GeneralMember newGeneralMember(name, ssn, id, pw);
         generalMemberList.push_back(newGeneralMember);
-    };
-    static void setCompanyRegisterInfo(string name, string bn, string id, string pw) {
+    }
+    static void setCompanyRegisterInfo(string name, int bn, string id, string pw) {
         CompanyMember newCompanyMember(name, bn, id, pw);
         companyMemberList.push_back(newCompanyMember);
-    };
+    }
 };
 class RegisterUI {
 public:
-    static void selectgeneralRegisterUI(string name, string ssn, string id, string pw) {
+    static void selectgeneralRegisterUI(string name, int ssn, string id, string pw) {
         Register::setGeneralRegisterInfo(name, ssn, id, pw);
     }
-    static void selectcompanyRegisterUI(string name, string bn, string id, string pw) {
+    static void selectcompanyRegisterUI(string name, int bn, string id, string pw) {
         Register::setCompanyRegisterInfo(name, bn, id, pw);
     }
 };
@@ -187,12 +170,14 @@ class Unregister {
 public:
     static void withdraw() {
         if (currentCompanyMember != NULL) {
-            out_fp << currentCompanyMember->getId() << endl;
-            companyMemberList.erase(currentCompanyMember);
+            out_fp << ">" << currentCompanyMember->getId() << "\n";
+            delete currentCompanyMember;
+            currentCompanyMember = NULL;
         }
         if (currentGeneralMember != NULL) {
-            out_fp<< currentGeneralMember->getId() << endl;
-            generalMemberList.erase(currentCompanyMember);
+            out_fp << ">" << currentGeneralMember->getId() << "\n";
+            delete currentGeneralMember;
+            currentGeneralMember = NULL;
         }
     }
 };
@@ -207,18 +192,27 @@ public:
 class Login {
 public:
     static void callLogin(string id, string pw) {
-        for (auto it = generalMemberList.begin(); it != generalMemberList.end(); ++it) {
-            if (it->getId==id && it->getPassword==pw) {
-                currentGeneralMember = it;
-                out_fp << ">" << id << pw << \n;
+        int i = 0;
+        int j = 0;
+        while (true) {
+            if (generalMemberList.size() == i) break;
+            if (generalMemberList[i].getId() == id && generalMemberList[i].getPassword() == pw) {
+                out_fp << ">" << " " << id << " " << pw << "\n";
+                currentGeneralMember = &generalMemberList[i];
+                break;
             }
+            else i++;
         }
-        for (auto it = companyMemberList.begin(); it != companyMemberList.end(); ++it) {
-            if (it->getId == id && it->getPassword == pw) {
-                currentCompanyMember = it;
-                out_fp << ">" << id << pw << \n;
+        while (true) {
+            if (companyMemberList.size() == j) break;
+            if (companyMemberList[j].getId() == id && companyMemberList[j].getPassword() == pw) {
+                out_fp << ">" << " " << id << " " << pw << "\n";
+                currentCompanyMember = &companyMemberList[j];
+                break;
             }
+            else j++;
         }
+        if (currentCompanyMember==NULL&&currentGeneralMember==NULL) out_fp << "로그인 실패\n";
     }
 };
 class LoginUI {
@@ -232,8 +226,14 @@ public:
 class Logout {
 public:
     static void callLogout() {
-        if (currentCompanyMember != NULL) currentCompanyMember = NULL;
-        if (currentGeneralMember != NULL) currentGeneralMember = NULL;
+        if (currentCompanyMember != NULL) {
+            out_fp << ">" << " " << currentCompanyMember->getId()  << "\n";
+            currentCompanyMember = NULL;
+        }
+        if (currentGeneralMember != NULL) {
+            out_fp << ">" << " " << currentGeneralMember->getId()  << "\n";
+            currentGeneralMember = NULL;
+        }
     }
 };
 class LogoutUI {
@@ -244,140 +244,128 @@ public:
 };
 
 //3.1 채용 정보 등록
-class addNewRecruitment {
+class AddNewRecruitment {
 public:
-    static void add_Recruitment(string job, string numberOfPeople, string applicationDeadLine) {
-        currentCompanyMember->addRecruitment(job, numberOfPeople, applicationDeadLine);
-        out_fp << ">" << job  << numberOfPeople  << applicationDeadLine << \n;
+    static void add_Recruitment(string job, int numberOfPeople, string applicationDeadLine) {
+        RecruitmentInfo r(job, numberOfPeople, applicationDeadLine);
+        r.setBusinessField(currentCompanyMember->getBusinessField());
+        r.setBusinessNumber(currentCompanyMember->getBusinessNumber());
+        recruitmentList.push_back(r);
+        out_fp << ">" << " " << job << " " << numberOfPeople << " " << applicationDeadLine << "\n";
     }
 };
-class addRecruitmentUI {
+class AddRecruitmentUI {
 public:
-    static void createRecruitment(string job, string numberOfPeople, string applicationDeadLine) {
-        addNewRecruitment::add_Recruitment(job, numberOfPeople, applicationDeadLine);
+    static void createRecruitment(string job, int numberOfPeople, string applicationDeadLine) {
+        AddNewRecruitment::add_Recruitment(job, numberOfPeople, applicationDeadLine);
     }
-
 };
 
 //3.2 등록된 채용 정보 조회
+class GetRecruitmentInfo {
+public:
+    static void getRecruitment() {
+        for (int i = 0; i != recruitmentList.size(); i++) {
+            if (recruitmentList[i].getBusineesNumber() == currentCompanyMember->getBusinessNumber()) {
+                string job = recruitmentList[i].getJob();
+                int numberOfPeople = recruitmentList[i].getNumberOfPeople();
+                string applicationDeadLine = recruitmentList[i].getApplicationDeadLine();
+                out_fp << ">" << " " << job << " " << numberOfPeople << " " << applicationDeadLine << "\n";
+            }
+        }
+    }
+};
 class GetRecruitmentInfoUI {
 public:
     static void call_recruitmentinfo() {
-        GetRecruitmentInfo::getRecruitment;
-    }
-};
-class GetRecruitmentInfo {
-public
-    static void getRecruitment() {
-    RecruitmentInfo r = currentCompanyMember->getRecruitment();
-    out_fp << ">" << r.getJob() << r.getNumberOfPeople() << r.getApplicationDeadLine() << "\n";
+        GetRecruitmentInfo::getRecruitment();
     }
 };
 
 //4.1 채용 정보 검색
-
-class RecruitmentSearchUI {
+class RecruitmentSearchInfo {
 public:
-    static void SearchRecritment() {
-        string CompanyName;
-        in_fp >> CompanyName;
-        RecruitmentSearch::call_recruitmentSearch(CompanyName);
+    static void recruitmentSearch(string name) {
+        for (int i = 0; i != recruitmentList.size(); i++) {
+            if (recruitmentList[i].getBusinessField() == name) {
+                string businessField = recruitmentList[i].getBusinessField();
+                int busineesNumber = recruitmentList[i].getBusineesNumber();
+                string job = recruitmentList[i].getJob();
+                int numberOfPeople = recruitmentList[i].getNumberOfPeople();
+                string applicationDeadLine = recruitmentList[i].getApplicationDeadLine();
+                out_fp << ">" << " " << businessField << " " << busineesNumber << " " << job << " " << numberOfPeople << " " << applicationDeadLine << "\n";
+            }
+        }
     }
 };
-
-class RecruitmentSearch {
+class RecruitmentSearchUI {
 public:
     static void call_recruitmentSearch(string name) {
         RecruitmentSearchInfo::recruitmentSearch(name);
     }
 };
-class RecruitmentSearchInfo{
-public:
-    static void recruitmentSearch(string name) {
-        for (auto it = companyMemberList.begin(); it != companyMemberList.end(); ++it) {
-            if (name = it->getName()) {
-                RecruitmentInfo r = it->getRecruitment();
-                out_fp << ">" << it->getName() << it->getBusinessNumber << r.getJob() << r.getNumberOfPeople() << r.getApplicationDeadLine() << "\n";
-            }
-        }
-    }
-};
 
 //4.2 채용 지원
-class ApplyForRecruitmentUI {
-public:
-    static void callApply() {
-        int number;
-        in_fp >> number;
-        ApplyForRecruitment::apply(number);
-    }
-};
-
 class ApplyForRecruitment {
-public:
-    static void apply(int number) {
-        RecruitmentApply :: applyRecruitment(number);
-    }
-};
-class RecruitmentApply {
 public:
     static void applyRecruitment(int number)
     {
-        for (auto it = companyMemberList.begin(); it != companyMemberList.end(); ++it) {
-            if (name = it->getBusinessNumber()) {
-                RecruitmentInfo r = it->getRecruitment();
-                out_fp << ">" << it->getName() << it->getBusinessNumber << r.getJob() << "\n";
-                currentGeneralMember->addRecruitment(r); 
+        for (int i = 0; i != recruitmentList.size(); i++) {
+            if (recruitmentList[i].getBusineesNumber() == number) {
+                recruitmentList[i].setIdNumber(currentGeneralMember->getIdNumber()); //채용 정보 리스트에 주민번호를 set함
+                string businessField = recruitmentList[i].getBusinessField();
+                int busineesNumber = recruitmentList[i].getBusineesNumber();
+                string job = recruitmentList[i].getJob();
+                out_fp << ">" << " "  << businessField << " " << busineesNumber <<" " << job << "\n";
             }
         }
+    }
+};
+class ApplyForRecruitmentUI {
+public:
+    static void apply(int number) {
+        ApplyForRecruitment::applyRecruitment(number);
     }
 };
 
 //4.3 지원 정보 조회
-class GetApplicationInformationUI {
-public:
-    static void callGetApplicationInfo() {
-        GetApplicationInformation::getApplicationInfo();
-    }
-};
-
 class GetApplicationInformation {
 public:
-    static void getApplicationInfo() {
-        ApplicationInformation::showAppInfo();
-    }
-};
-
-class ApplicationInformation{
-public:
     static void showAppInfo() {
-        vector<RecruitmentInfo> list = currentGeneralMember->getRecruitmentList();
-        //일반회원이 지원한 채용 리스트를 복제해온뒤
-        for (auto it = companyMemberList.begin(); it != companyMemberList.end(); ++it) {
-            for (auto i = list.begin(); i != list.end(); ++i) {
-                if (it->getRecruitment() == &i) {//회사회원 전체를 스캔해 같은 채용이면 
-                    out_fp << ">" << it->getName() << it->getBusinessNumber() << i->getJob() << i->getNumberOfPeople() << i->getApplicationDeadLine() << "\n";
+        for (int i = 0; i != recruitmentList.size(); i++) {//채용정보리스트를 조회하면서
+            for (int j=0; j != recruitmentList[i].getIdNumber().size();j++) {//조회한 채용 정보에 회원의 주민번호들을 조회하면서
+                if (currentGeneralMember->getIdNumber() == recruitmentList[i].getIdNumber()[j]) { //일반회원이 지원한 채용이면
+                    string businessField = recruitmentList[i].getBusinessField();
+                    int busineesNumber = recruitmentList[i].getBusineesNumber();
+                    string job = recruitmentList[i].getJob();
+                    int numberOfPeople = recruitmentList[i].getNumberOfPeople();
+                    string applicationDeadLine = recruitmentList[i].getApplicationDeadLine();
+                    out_fp << ">" << " " << businessField << " " << busineesNumber << " " << job << " " << numberOfPeople << " " << applicationDeadLine << "\n";
                 }
             }
         }
-    }// 더 간단하게 할 수 있을것 같은데 방법을 잘 모르겠음
+    }
+};
+class GetApplicationInformationUI {
+public:
+    static void getApplicationInfo() {
+        GetApplicationInformation::showAppInfo();
+    }
 };
 
 //4.4 지원 취소
 class CancelApplicationInfo {
 public:
     static void cancelApplication(string applicant) {
-        vector<RecruitmentInfo> list = currentGeneralMember->getRecruitmentList();
-        //일반회원이 지원한 채용 리스트를 복제해온뒤
-        for (auto it = companyMemberList.begin(); it != companyMemberList.end(); ++it) {
-            for (auto i = list.begin(); i != list.end(); ++i) {
-                if (it->getRecruitment() == &i) {//회사회원 전체를 스캔해 같은 채용이면 
-                    out_fp << ">" << it->getName() << it->getBusinessNumber() << i->getJob() << "\n";
-                    currentGeneralMember->removeRecruitment(it->getRecruitment());
-                }
+        for (int i = 0; i != recruitmentList.size(); i++) {
+            if (applicant == recruitmentList[i].getBusinessField()) {
+                string businessField = recruitmentList[i].getBusinessField();
+                int busineesNumber = recruitmentList[i].getBusineesNumber();
+                string job = recruitmentList[i].getJob();
+                out_fp << ">" << " " << job << " " << businessField << " " << busineesNumber << "\n";
+                recruitmentList[i].deleteIdNumber(currentGeneralMember->getIdNumber());
             }
         }
-    }// 더 간단하게 할 수 있을것 같은데 방법을 잘 모르겠음
     }
 };
 class CancelApplicationUI {
@@ -388,76 +376,77 @@ public:
 };
 
 //5.1 지원 정보 통계
+class GetApplicationStatsInfo {
+public:
+    static void getApplicationStats() {
+        if (currentCompanyMember != NULL) {//회사회원이 로그인 상태일 경우
+            for (int i = 0; i != recruitmentList.size(); i++) {
+                if (currentCompanyMember->getBusinessNumber() == recruitmentList[i].getBusineesNumber()) {
+                    out_fp << ">" << " " << recruitmentList[i].getJob() << " " << recruitmentList[i].getNumberSize() << "\n";
+                }
+            }
+        }
+        if (currentGeneralMember != NULL) {//일반회원이 로그인 상태일 경우
+            map<string, int> statistics;
+            for (int i = 0; i != recruitmentList.size(); i++) {
+                for (int j=0; j != recruitmentList[i].getIdNumber().size(); j++) {
+                    if (currentGeneralMember->getIdNumber() == recruitmentList[i].getIdNumber()[j]) {
+                        if (statistics.count(recruitmentList[i].getJob()) == 1) statistics[recruitmentList[i].getJob()]++;                       
+                        else statistics[recruitmentList[i].getJob()] = 1;
+                        }
+                    }
+                }
+            out_fp << ">";
+            for (auto iter = statistics.begin(); iter != statistics.end(); ++iter) out_fp <<">"<< " "<< iter->first << " " << iter->second << "\n";
+            }
+    }
+};
 class GetApplicationStatsUI {
 public:
     static void showApplicationStats() {
         GetApplicationStatsInfo::getApplicationStats();
     }
 };
-class GetApplicationStatsInfo {
-public:
-    static void getApplicationStats() {
-        string job;
-        int count = 0;
-        if (currentCompanyMember != NULL) {//회사회원이 로그인 상태일 경우
-            for (auto it = generalMemberList.begin(); it != generalMemberList.end(); ++it) {
-                vector<RecruitmentInfo> list = it->getRecruitmentList();
-                for (auto i = list.begin(); i != list.end(); ++i) {
-                    if (currentCompanyMember->addRecruitment() == &i) {
-                        job = i->getJob();
-                        count++;
-                    }
-                }
-            }
-            out_fp << ">" << job << count << "\n";
-        }
-        if (currentGeneralMember != NULL) {//일반회원이 로그인 상태일 경우
-            vector<RecruitmentInfo> list = currentGeneralMember->getRecruitmentList();
-            for (auto i = list.begin(); i != list.end(); ++i) {
-                out_fp << ">" << i->getJob() << list.size();
-            }
-        }
-    }
-};
-
 //함수 선언 했던 것들 구체화
 
 //1.1 회원가입
 void registerMember() {
-    string name, number, ID, password,memberType;
-    in_fp >> memberType>> name >> number >> ID >> password;
+    string name, ID, password;
+    int number, memberType;
+    in_fp >> memberType >> name >> number >> ID >> password;
 
-    if (memberType == 1) RegisterUI::selectgeneralRegisterUI(name, number, ID, password);
-    if (memberType == 2) RegisterUI::selectcompanyRegisterUI(name, number, ID, password);
-    out_fp <<"<"<<memberType<<"["<< name<<"][" << number<<"][" << ID<<"][" << password<<"]"\n;
-};
+    if (memberType == 1) RegisterUI::selectcompanyRegisterUI(name, number, ID, password);
+    if (memberType == 2) RegisterUI::selectgeneralRegisterUI(name, number, ID, password);
+    out_fp << ">" << " " << memberType << " " << name << " " << number << " " << ID << " " << password << "\n";
+}
 
-//1.2 회원탈퇴 
+//1.2 회원탈퇴
 void withdrawMember() {
     UnregisterUI::selectUnregisterUI();
-};
+}
 
-//2.1 로그인 
+//2.1 로그인
 void login() {
     string id, pw;
     in_fp >> id >> pw;
     LoginUI::selectLoginUI(id, pw);
-};
+}
 
 //2.2 로그아웃
 void logout() {
     LogoutUI::selectLogoutUI();
-};
+}
 
 //3.1 채용 정보 등록
 void addRecruitmentInfo() {
-    string job, numberOfPeople, applicationDeadLine;
+    string job, applicationDeadLine;
+    int numberOfPeople;
     in_fp >> job >> numberOfPeople >> applicationDeadLine;
-    addRecruitmentUI::createRecruitment(job, numberOfPeople, applicationDeadLine);
+    AddRecruitmentUI::createRecruitment(job, numberOfPeople, applicationDeadLine);
 }
 
 //3.2 등록된 채용 정보 조회
-void getRecruitment(){
+void getRecruitment() {
     GetRecruitmentInfoUI::call_recruitmentinfo();
 }
 
@@ -488,17 +477,16 @@ void removeApplicant() {
 void getApplicationStats() {
     GetApplicationStatsUI::showApplicationStats();
 }
+//6.1 프로그램 종료
+void program_exit() {}
 
-//main
 int main()
 {
-    // 파일 입출력을 위한 초기화
     in_fp.open(INPUT_FILE_NAME);
     out_fp.open(OUTPUT_FILE_NAME);
-    doTask();
+    doTask(); 
     return 0;
 }
-
 
 void doTask()
 {
@@ -532,6 +520,8 @@ void doTask()
                 break;
             }
             }
+            break;
+        }
         case 2:
         {
             switch (menu_level_2)
@@ -620,7 +610,7 @@ void doTask()
             {
             case 1:
             {
-                out_fp << "6.1. 프로그램 종료\n";
+                out_fp << "6.1. 종료\n";
                 program_exit();
                 is_program_exit = 1;
                 break;
@@ -629,10 +619,6 @@ void doTask()
             break;
         }
         }
-        }
-
-        return;
     }
+    return;
 }
-
-void program_exit() {}
